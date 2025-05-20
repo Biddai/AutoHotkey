@@ -35,22 +35,7 @@
     for hwnd in WinGetList("ahk_exe Code.exe") {
         title := WinGetTitle(hwnd)
         if InStr(title, "Visual Studio Code") {
-            state := WinGetMinMax("ahk_id " hwnd)
-            if (state = -1) {
-                ; minimized: restore and activate
-                WinRestore("ahk_id " hwnd)
-                WinActivate("ahk_id " hwnd)
-            } else {
-                ; already active:
-                if(WinActive("ahk_exe Code.exe")){
-                    Send("^+n")  ; Ctrl+Shift+N to open new window
-                }
-                else{
-                    WinActivate("ahk_id " hwnd)
-                }
-                
-                
-            }
+            MinimizeOrRestore(hwnd)
             return
         }
     }
@@ -70,22 +55,12 @@
     for hwnd in WinGetList("ahk_class Chrome_WidgetWin_1") {
         title := WinGetTitle(hwnd)
         if InStr(title, "ChatGPT") {
-            ; 2) Check if minimized (-1 = iconic/minimized)
-            state := WinGetMinMax("ahk_id " hwnd)
-            if (state = -1)
-                WinRestore("ahk_id " hwnd)
-            ; 3) Activate it
-            WinActivate("ahk_id " hwnd)
+            MinimizeOrRestore(hwnd)
             return
         }
     }
-
     ; 4) Not running? Use Windows Search to launch it
-    Send("{LWin down}s{LWin up}")
-    Sleep 200
-    Send("ChatGPT")
-    Sleep 300
-    Send("{Enter}")
+    RunCommand("ChatGPT")
 }
 
 ^!z::{
@@ -95,4 +70,24 @@
 } else {
     MsgBox("VS Code is NOT active")
 }
+}
+
+
+MinimizeOrRestore(hwnd) {
+    ; 2) Check if minimized (-1 = iconic/minimized)
+    state := WinGetMinMax("ahk_id " hwnd)
+    if (state = -1)
+        WinActivate("ahk_id " hwnd)
+    else{
+        WinMinimize("ahk_id " hwnd) ; If already active, minimize it
+    }
+}
+; Sends a command to search in the windows search bar
+RunCommand(command){
+        ; 4) Not running? Use Windows Search to launch it
+    Send("{LWin down}s{LWin up}")
+    Sleep 200
+    Send(command)
+    Sleep 300
+    Send("{Enter}")
 }
