@@ -4,10 +4,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Opens VS code. If Code is already open, it will bring it to front. 
 ; If the vs code window is already in front, it will open a new vs code window.
-^!v:: {  ; Ctrl+Alt+V
+^!+v:: {  ; Ctrl+Alt+V
     SetTitleMatchMode 2   ; allow partial title matches
-    ; 0) If active window is a folder, open it in VS Code
-
     active := WinExist("A")
     cls    := WinGetClass("ahk_id " active)
 
@@ -24,7 +22,7 @@
             }
         }
         if (folder) {
-            comspec := EnvGet("ComSpec")                    ; usually C:\Windows\System32\cmd.exe
+            comspec := EnvGet("ComSpec")
             cmd := comspec . ' /c code --new-window "' folder '"'
             Run(cmd, "", "Hide")
         }
@@ -32,12 +30,8 @@
     }
 
     ; 2) Loop through all VS Code windows
-    for hwnd in WinGetList("ahk_exe Code.exe") {
-        title := WinGetTitle(hwnd)
-        if InStr(title, "Visual Studio Code") {
-            MinimizeOrRestore(hwnd)
-            return
-        }
+    if(MinimizeOrRestoreWrapper("ahk_exe Code.exe")) {
+        return
     }
 
     ; 3) Not running → launch VS Code GUI directly (no console)
@@ -47,47 +41,102 @@
 }
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #Requires AutoHotkey v2.0
-
-^!x:: {  ; Ctrl+Alt+X
+; CHATGPT MACRO
+^!+x:: {  ; Ctrl+Alt+X
     SetTitleMatchMode 2   ; allow partial title matches
 
     ; 1) Loop through all Chrome/Electron windows
-    for hwnd in WinGetList("ahk_class Chrome_WidgetWin_1") {
-        title := WinGetTitle(hwnd)
-        if InStr(title, "ChatGPT") {
-            MinimizeOrRestore(hwnd)
-            return
-        }
+    if(MinimizeOrRestoreWrapper("ahk_class Chrome_WidgetWin_1", "ChatGPT")) {
+        return
+    }
+
+    ; 4) Not running? Use Windows Search to launch it
+    Run("ChatGPT")
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+#Requires AutoHotkey v2.0
+; OBSIDIAN MACRO
+^!+c:: {  ; Ctrl+Alt+C
+    SetTitleMatchMode 2   ; allow partial title matches
+
+    ; 1) Loop through all Chrome/Electron windows
+    if(MinimizeOrRestoreWrapper("ahk_exe Obsidian.exe")) {
+        return
+    }
+
+    ; 4) Not running? Use Windows Search to launch it
+    Run("obsidian")
+}
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+#Requires AutoHotkey v2.0
+; Discord MACRO
+^!+d:: {  ; Ctrl+Alt+d
+    SetTitleMatchMode 2   ; allow partial title matches
+
+    ; 1) Loop through all Chrome/Electron windows
+    if(MinimizeOrRestoreWrapper("ahk_exe DiscordPTB.exe")) {
+        return
+    }
+
+    ; 4) Not running? Use Windows Search to launch it
+    Run("discord")
+}
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+#Requires AutoHotkey v2.0
+; Spotify MACRO
+^!+s:: {  ; Ctrl+Alt+s
+    SetTitleMatchMode 2   ; allow partial title matches
+    ; 1) Loop through all Chrome/Electron windows
+    if(MinimizeOrRestoreWrapper("ahk_exe Spotify.exe")) {
+        return
     }
     ; 4) Not running? Use Windows Search to launch it
-    RunCommand("ChatGPT")
+    Run("spotify")
 }
-
-^!z::{
-    if WinActive("ahk_exe Code.exe") {
-    ; VS Code is the frontmost window
-    MsgBox("VS Code is active")
-} else {
-    MsgBox("VS Code is NOT active")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+#Requires AutoHotkey v2.0
+; Explorer MACRO
+^!+e:: {  ; Ctrl+Alt+e
+    SetTitleMatchMode 2   ; allow partial title matches
+    ; 1) Loop through all Chrome/Electron windows
+    if(MinimizeOrRestoreWrapper("ahk_exe explorer.exe", "File Explorer")) {
+        return
+    }
+    ; 4) Not running? Use Windows Search to launch it
+    Run("explorer")
 }
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+#Requires AutoHotkey v2.0
+; Brave MACRO
+; Note - make sure not to restore chatgpt
+^!+b:: {  ; Ctrl+Alt+b
+    SetTitleMatchMode 2   ; allow partial title matches
+
+    if(MinimizeOrRestoreWrapper("ahk_exe brave.exe","brave")) {
+        return
+    }
+    ; 4) Not running? Use Windows Search to launch it
+    Run("brave")
 }
-
-
+;;;;;;;;;;;;;;;;;
+; Utilities
 MinimizeOrRestore(hwnd) {
     ; 2) Check if minimized (-1 = iconic/minimized)
     state := WinGetMinMax("ahk_id " hwnd)
-    if (state = -1)
-        WinActivate("ahk_id " hwnd)
-    else{
-        WinMinimize("ahk_id " hwnd) ; If already active, minimize it
-    }
+    if (WinActive("ahk_id " hwnd))
+        WinMinimize("ahk_id " hwnd) ; If active, minimize it
+    else 
+        WinActivate("ahk_id " hwnd) 
 }
-; Sends a command to search in the windows search bar
-RunCommand(command){
-        ; 4) Not running? Use Windows Search to launch it
-    Send("{LWin down}s{LWin up}")
-    Sleep 200
-    Send(command)
-    Sleep 300
-    Send("{Enter}")
+
+MinimizeOrRestoreWrapper(exe,req_title := "") {
+    for hwnd in WinGetList(exe) {
+        title := WinGetTitle(hwnd)
+        if(req_title != "" && !InStr(title, req_title))
+            continue  ; Skip if the title doesn't match the required substring
+        MinimizeOrRestore(hwnd)
+        return true
+    }
+    return false
 }
