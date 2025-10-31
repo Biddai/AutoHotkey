@@ -57,7 +57,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #Requires AutoHotkey v2.0
 ; OBSIDIAN MACRO
-^!+c:: {  ; Ctrl+Alt+C
+^!+o:: {  ; Ctrl+Alt+C
     SetTitleMatchMode 2   ; allow partial title matches
 
     ; 1) Loop through all Chrome/Electron windows
@@ -66,7 +66,7 @@
     }
 
     ; 4) Not running? Use Windows Search to launch it
-    Run("obsidian")
+    Run("Obsidian")
 }
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #Requires AutoHotkey v2.0
@@ -80,7 +80,7 @@
     }
 
     ; 4) Not running? Use Windows Search to launch it
-    Run("discord")
+    Run("Discord")
 }
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #Requires AutoHotkey v2.0
@@ -92,7 +92,7 @@
         return
     }
     ; 4) Not running? Use Windows Search to launch it
-    Run("spotify")
+    Run("Spotify")
 }
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #Requires AutoHotkey v2.0
@@ -117,7 +117,7 @@
         return
     }
     ; 4) Not running? Use Windows Search to launch it
-    Run("brave")
+    Run("Brave")
 }
 ;;;;;;;;;;;;;;;;;
 ; Utilities
